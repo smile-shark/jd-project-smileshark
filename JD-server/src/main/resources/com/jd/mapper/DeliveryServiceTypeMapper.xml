@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.mapper.DeliveryServiceTypeMapper">
+    <sql id="selectByGoodsIdSQL">
+        select * from delivery_service_type
+        inner join delivery
+        on delivery_service_type.delivery_service_type_id = delivery.delivery_service_type_id
+        where delivery.goods_id=#{goodsId}
+    </sql>
+    <select id="selectByGoodsId" resultType="deliveryServiceType">
+        <include refid="selectByGoodsIdSQL"/>
+    </select>
+</mapper>

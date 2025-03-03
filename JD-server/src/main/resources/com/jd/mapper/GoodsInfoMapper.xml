@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.mapper.GoodsInfoMapper">
+        <sql id="selectAllGoodsInfoSQL">
+            select * from goods_info
+            <where>
+                <if test="goodsId!=null">
+                    goods_id = #{goodsId}
+                </if>
+            </where>
+        </sql>
+    <resultMap id="selectAllGoodsInfo" type="goodsInfo">
+        <id property="goodsId" column="goods_id"/>
+        <association property="shop"
+                     column="goods_id"
+                     select="com.jd.mapper.ShopMapper.selectByShopId"/>
+        <collection
+                property="goodsTitleImages"
+                ofType="goodsTitleImages"
+                column="goods_id"
+                select="com.jd.mapper.GoodsTitleImagesMapper.selectTitleImagesByGoodsId"/>
+    </resultMap>
+    <select id="selectAllGoodsInfo" resultMap="selectAllGoodsInfo">
+        <include refid="selectAllGoodsInfoSQL"/>
+    </select>
+    <sql id="selectHomeDataSQL">
+        select goods_id,goods_info,goods_old_price,goods_new_price from jd.goods_info
+        ORDER BY RAND()
+        LIMIT 100;
+    </sql>
+    <resultMap id="selectHomeData" type="goodsInfo">
+        <id property="goodsId" column="goods_id"/>
+        <collection
+                property="goodsTitleImages"
+                ofType="goodsTitleImages"
+                column="goods_id"
+                select="com.jd.mapper.GoodsTitleImagesMapper.selectTitleImagesByGoodsId"
+                fetchType="eager"/>
+    </resultMap>
+    <select id="selectHomeData" resultMap="selectHomeData">
+        <include refid="selectHomeDataSQL"/>
+    </select>
+    <resultMap id="selectDeliveryDataMap" type="goodsInfo">
+        <id property="goodsId" column="goods_id"/>
+        <association
+                property="shop"
+                select="com.jd.mapper.ShopMapper.selectByShopId"
+                column="shop_id"
+                fetchType="eager"/>
+        <collection
+                property="deliveryServiceType"
+                javaType="java.util.List"
+                ofType="deliveryServiceType"
+                column="goods_id"
+                fetchType="eager"
+                select="com.jd.mapper.DeliveryServiceTypeMapper.selectByGoodsId"/>
+        <collection
+                property="goodsTitleImages"
+                ofType="goodsTitleImages"
+                javaType="java.util.List"
+                column="goods_id"
+                select="com.jd.mapper.GoodsTitleImagesMapper.selectTitleImagesByGoodsId"
+                fetchType="eager"/>
+        <collection
+                property="goodsDetailsImages"
+                javaType="java.util.List"
+                ofType="goodsDetailsImages"
+                column="goods_id"
+                fetchType="eager"
+                select="com.jd.mapper.GoodsDetailsImagesMapper.selectByGoodsId"/>
+    </resultMap>
+    <select id="selectDeliveryData" resultMap="selectDeliveryDataMap">
+        <include refid="selectAllGoodsInfoSQL"/>
+    </select>
+    <sql id="selectDataLikeSearchContentSQL">
+        select * from goods_info
+        <where>
+            <if test="searchContent!=null">
+                goods_info like #{searchContent}
+            </if>
+        </where>
+    </sql>
+    <select id="selectDataLikeSearchContent" resultMap="selectAllGoodsInfo">
+        <include refid="selectDataLikeSearchContentSQL"/>
+    </select>
+    <sql id="selectGoodsInfoByGoodsIdSQL">
+        select * from jd.goods_info
+        <where>
+            <if test="goodsId!=null">
+                goods_id=#{goodsId}
+            </if>
+        </where>
+    </sql>
+    <resultMap id="selectGoodsInfoByGoodsIdMap" type="goodsInfo">
+        <id property="goodsId" column="goods_id"/>
+        <collection
+                property="goodsTitleImages"
+                column="goods_id"
+                select="com.jd.mapper.GoodsTitleImagesMapper.selectTitleImagesByGoodsId"
+                ofType="goodsTitleImages"
+                javaType="java.util.List"
+                fetchType="eager"/>
+    </resultMap>
+    <select id="selectGoodsInfoByGoodsId" resultMap="selectGoodsInfoByGoodsIdMap">
+        <include refid="selectGoodsInfoByGoodsIdSQL"/>
+    </select>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.mapper.GoodsTitleImagesMapper">
+    <sql id="selectTitleImagesByGoodsIdSQL">
+        select * from goods_title_images
+        <where>
+            <if test="goodsId!=null">
+                goods_id=#{goodsId}
+            </if>
+        </where>
+    </sql>
+    <select id="selectTitleImagesByGoodsId" resultType="goodsTitleImages">
+        <include refid="selectTitleImagesByGoodsIdSQL"/>
+    </select>
+    <sql id="selectOneTitleImageRandomSQL">
+        select * from goods_title_images order by rand() limit 1
+    </sql>
+    <select id="selectOneTitleImageRandom" resultType="goodsTitleImages">
+        <include refid="selectOneTitleImageRandomSQL"/>
+    </select>
+</mapper>

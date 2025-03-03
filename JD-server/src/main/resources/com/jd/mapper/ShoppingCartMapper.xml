@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.mapper.ShoppingCartMapper">
+    <sql id="selectShoppingCartByCustomerIdSQL">
+        select * from jd.shopping_cart
+        <where>
+            <if test="customerId!=null">
+                customer_id=#{customerId} and order_id=null
+            </if>
+        </where>
+    </sql>
+    <resultMap id="selectShoppingCartByCustomerIdMap" type="shoppingCart">
+        <association property="shop"
+                     select="com.jd.mapper.ShopMapper.selectByShopId"
+                     column="shop_id"/>
+
+    </resultMap>
+    <select id="selectShoppingCartByCustomerId" >
+        <include refid="selectShoppingCartByCustomerIdSQL"/>
+    </select>
+    <sql id="selectShoppingCartByGoodsIdAndNotOrderIdSQL">
+        select * from jd.shopping_cart
+        <where>
+            <if test="goodsId!=null">
+                goods_id=#{goodsId}
+            </if>
+            <if test="customerId!=null">
+               and customer_id=#{customerId}
+            </if>
+            and order_id=null
+        </where>
+    </sql>
+    <select id="selectShoppingCartByGoodsIdAndNotOrderId" resultMap="selectShoppingCartByCustomerIdMap">
+        <include refid="selectShoppingCartByGoodsIdAndNotOrderIdSQL"/>
+    </select>
+    <insert id="addNewShoppingCart">
+        insert into jd.shopping_cart (goods_id, customer_id, shop_id, goods_num)
+        values (
+                #{shoppingCart.goodsId},
+                #{shoppingCart.customerId},
+                #{shoppingCart.shop.shopId},1)
+    </insert>
+    <update id="updateShoppingCart">
+        update jd.shopping_cart
+        <set>
+            <if test="goodsNum!=null">
+                goods_num=#{goodsNum}
+            </if>
+        </set>
+        <where>
+            <if test="goodsId!=null">
+                and goods_id=#{goodsId}
+            </if>
+            <if test="customerId!=null">
+                and customer_id=#{customerId}
+            </if>
+            and goods_num=null
+        </where>
+    </update>
+</mapper>
