@@ -1,10 +1,11 @@
 package com.jd.mapper;
 
 import com.jd.entity.GoodsInfo;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-
+@Mapper
 public interface GoodsInfoMapper {
     List<GoodsInfo> selectAllGoodsInfo();
     List<GoodsInfo> selectHomeData();

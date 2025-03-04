@@ -8,16 +8,20 @@ import com.jd.mapper.GoodsInfoMapper;
 import com.jd.mapper.ShoppingCartMapper;
 import com.jd.request.param.RequestParam;
 import com.jd.utils.JwtUtils;
-import com.jd.utils.SqlSessionUtils;
-import io.jsonwebtoken.Claims;
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class ShoppingCartService {
+    @Autowired
+    private CustomerMapper customerMapper;
+    @Autowired
+    private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private GoodsInfoMapper goodsInfoMapper;
 
-    private SqlSession sqlSession;
 
     public Result getShoppingCart(String token){
         /*
@@ -26,17 +30,10 @@ public class ShoppingCartService {
         * 3. 通过用户id获取购物车中的信息*/
         try {
             String email = JwtUtils.parseJWTTokenToCustomer(token).get("customerEmail", String.class);
-            sqlSession = SqlSessionUtils.getSqlSession();
-            CustomerMapper customerMapper = sqlSession.getMapper(CustomerMapper.class);
             Customer customer = customerMapper.selectCustomerByCustomerEmail(email);
-            ShoppingCartMapper shoppingCartMapper = sqlSession.getMapper(ShoppingCartMapper.class);
             List<ShoppingCart> shoppingCarts = shoppingCartMapper.selectShoppingCartByCustomerId(customer.getCustomerId());
-            sqlSession.close();
             return Result.success().setData(shoppingCarts);
         }catch (Exception e){
-            if(sqlSession != null){
-                sqlSession.close();
-            }
             e.printStackTrace();
             return Result.error();
         }
@@ -48,16 +45,13 @@ public class ShoppingCartService {
         try{
             int i;
             // 查询是否已有当前商品
-            sqlSession = SqlSessionUtils.getSqlSession();
-            ShoppingCartMapper shoppingCartMapper = sqlSession.getMapper(ShoppingCartMapper.class);
             ShoppingCart shoppingCartHave = shoppingCartMapper.selectShoppingCartByGoodsIdAndNotOrderId(goodsId, customerId);
             if(shoppingCartHave == null){
                 //没有该该商品的购物车数据
                 ShoppingCart shoppingCart = new ShoppingCart();
                 shoppingCart.setGoodsId(goodsId);
                 shoppingCart.setCustomerId(customerId);
-                GoodsInfoMapper mapper = sqlSession.getMapper(GoodsInfoMapper.class);
-                shoppingCart.setShop(mapper.selectGoodsInfoByGoodsId(goodsId).getShop());
+                shoppingCart.setShop(goodsInfoMapper.selectGoodsInfoByGoodsId(goodsId).getShop());
                 i = shoppingCartMapper.addNewShoppingCart(shoppingCart);
             }else{
                 //有当前商品的购物车数据
@@ -73,11 +67,9 @@ public class ShoppingCartService {
                 result = Result.error().setMsg("商品数据添加失败");
             }
         }catch (Exception e){
-            sqlSession.close();
             result=Result.error().setMsg("错误？商品数据添加失败");
             e.printStackTrace();
         }
-        sqlSession.close();
         return result;
     }
 }

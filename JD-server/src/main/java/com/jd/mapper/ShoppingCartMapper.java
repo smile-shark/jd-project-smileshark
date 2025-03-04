@@ -1,10 +1,11 @@
 package com.jd.mapper;
 
 import com.jd.entity.ShoppingCart;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-
+@Mapper
 public interface ShoppingCartMapper {
     List<ShoppingCart> selectShoppingCartByCustomerId(@Param("customerId") int customerId);
     ShoppingCart selectShoppingCartByGoodsIdAndNotOrderId(

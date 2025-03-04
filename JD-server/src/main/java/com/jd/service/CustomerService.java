@@ -6,31 +6,28 @@ import com.jd.mapper.CustomerMapper;
 import com.jd.request.param.RequestParam;
 import com.jd.utils.AESUtils;
 import com.jd.utils.JwtUtils;
-import com.jd.utils.SqlSessionUtils;
 import io.jsonwebtoken.Claims;
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerService {
+    @Autowired
+    private CustomerMapper customerMapper;
 
-    private SqlSession sqlSession;
 
     public Result loginUsePassword(RequestParam requestParam){
         Result result;
         String email=requestParam.getEmail();
         //首先根据邮箱查找到账号
         try{
-            sqlSession = SqlSessionUtils.getSqlSession();
-            CustomerMapper mapper = sqlSession.getMapper(CustomerMapper.class);
-            Customer customer = mapper.selectCustomerByCustomerEmail(email);
+            Customer customer = customerMapper.selectCustomerByCustomerEmail(email);
             if(customer==null){
-                sqlSession.close();
                 return Result.error().setMsg("没有该账号");
             }
             String password= AESUtils.decrypt(requestParam.getPassword(),customer.getCustomerEmail());
             if(!password.equals(customer.getCustomerPassword())){
-                sqlSession.close();
                 return Result.error().setMsg("密码错误");
             }
             //创建jwt令牌
@@ -41,7 +38,6 @@ public class CustomerService {
             e.printStackTrace();
             result=Result.error();
         }
-        sqlSession.close();
         return result;
     }
     public Result getEmail(String token){

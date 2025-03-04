@@ -30,16 +30,15 @@
         ORDER BY RAND()
         LIMIT 100;
     </sql>
-    <resultMap id="selectHomeData" type="goodsInfo">
+    <resultMap id="selectHomeDataMap" type="goodsInfo">
         <id property="goodsId" column="goods_id"/>
         <collection
                 property="goodsTitleImages"
-                ofType="goodsTitleImages"
                 column="goods_id"
                 select="com.jd.mapper.GoodsTitleImagesMapper.selectTitleImagesByGoodsId"
                 fetchType="eager"/>
     </resultMap>
-    <select id="selectHomeData" resultMap="selectHomeData">
+    <select id="selectHomeData" resultMap="selectHomeDataMap">
         <include refid="selectHomeDataSQL"/>
     </select>
     <resultMap id="selectDeliveryDataMap" type="goodsInfo">
